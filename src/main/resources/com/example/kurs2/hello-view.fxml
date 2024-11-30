@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.shape.Line?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.control.Button?>
+
+
+<AnchorPane fx:id="pane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="460.0" prefWidth="747.0" style="-fx-background-color: #F4F7FB;" xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.kurs2.HelloController">
+<children>
+    <AnchorPane layoutX="200.0" prefHeight="43.0" prefWidth="548.0" style="-fx-background-color: #fff;">
+        <effect>
+            <DropShadow color="#0000001f" />
+        </effect>
+        <children>
+            <TextField focusTraversable="false" layoutX="14.0" layoutY="5.0" prefHeight="29.0" prefWidth="155.0" promptText="Поиск в программе" style="-fx-background-color: #fff; -fx-border-color: #fff;">
+                <font>
+                    <Font name="Montserrat Regular" size="13.0" />
+                </font>
+            </TextField>
+        </children>
+    </AnchorPane>
+    <AnchorPane prefHeight="460.0" prefWidth="200.0" style="-fx-background-color: #fff;">
+        <effect>
+            <DropShadow color="#00000040" />
+        </effect>
+        <children>
+            <Button fx:id="start" layoutX="14.0" layoutY="92.0" mnemonicParsing="false" onAction="#startSimulation" prefHeight="29.0" prefWidth="175.0" style="-fx-background-color: #fafafa; -fx-border-color: #ccc; -fx-border-radius: 5px;" text="Запустить симуляцию">
+                <font>
+                    <Font name="Montserrat Regular" size="13.0" />
+                </font>
+                <cursor>
+                    <Cursor fx:constant="HAND" />
+                </cursor>
+            </Button>
+            <Separator focusTraversable="false" layoutX="14.0" layoutY="69.0" prefHeight="9.0" prefWidth="175.0" style="-fx-background-color: #ccc; -fx-border-style: solid; -fx-border-color: #333;">
+                <opaqueInsets>
+                    <Insets />
+                </opaqueInsets>
+            </Separator>
+            <Button fx:id="stop" layoutX="14.0" layoutY="131.0" mnemonicParsing="false" prefHeight="29.0" prefWidth="175.0" style="-fx-background-color: #fafafa; -fx-border-color: #ccc; -fx-border-radius: 5px;" text="Остановить симуляцию">
+                <font>
+                    <Font name="Montserrat Regular" size="13.0" />
+                </font>
+                <cursor>
+                    <Cursor fx:constant="HAND" />
+                </cursor>
+            </Button>
+            <Button layoutX="13.0" layoutY="167.0" mnemonicParsing="false" prefHeight="29.0" prefWidth="175.0" style="-fx-background-color: #fafafa; -fx-border-color: #ccc; -fx-border-radius: 5px;" text="Актуальное расписание">
+                <font>
+                    <Font name="Montserrat Regular" size="13.0" />
+                </font>
+                <cursor>
+                    <Cursor fx:constant="HAND" />
+                </cursor>
+            </Button>
+            <Button layoutX="13.0" layoutY="237.0" mnemonicParsing="false" prefHeight="58.0" prefWidth="175.0" style="-fx-background-color: #fafafa; -fx-border-color: #ccc; -fx-border-radius: 5px;" text="Загрузка нач. параметров" textAlignment="JUSTIFY" textOverrun="CENTER_ELLIPSIS">
+                <font>
+                    <Font name="Montserrat Regular" size="13.0" />
+                </font>
+                <cursor>
+                    <Cursor fx:constant="HAND" />
+                </cursor>
+            </Button>
+            <Button layoutX="14.0" layoutY="307.0" mnemonicParsing="false" prefHeight="34.0" prefWidth="175.0" style="-fx-background-color: #fafafa; -fx-border-color: #ccc; -fx-border-radius: 5px;" text="Управление событиями">
+                <font>
+                    <Font name="Montserrat Regular" size="13.0" />
+                </font>
+                <cursor>
+                    <Cursor fx:constant="HAND" />
+                </cursor>
+            </Button>
+            <Separator focusTraversable="false" layoutX="14.0" layoutY="396.0" prefHeight="3.0" prefWidth="175.0" style="-fx-background-color: #fafafa; -fx-border-style: solid; -fx-border-color: #ccc; -fx-border-width: 0;">
+                <opaqueInsets>
+                    <Insets />
+                </opaqueInsets>
+            </Separator>
+            <Button layoutX="14.0" layoutY="409.0" mnemonicParsing="false" prefHeight="29.0" prefWidth="175.0" style="-fx-background-color: #f7746a; -fx-border-color: #f7746a; -fx-border-radius: 5px;" text="Закрыть программу" textFill="WHITE">
+                <font>
+                    <Font name="Montserrat Regular" size="13.0" />
+                </font>
+                <cursor>
+                    <Cursor fx:constant="HAND" />
+                </cursor>
+            </Button>
+        </children>
+    </AnchorPane>
+    <AnchorPane fx:id="formOfSimulation" layoutX="200.0" layoutY="43.0" prefHeight="419.0" prefWidth="548.0">
+        <children>
+            <Line fx:id="road1" endX="409.0" endY="209.0" layoutX="-85.0" layoutY="59.0" startX="366.0" startY="24.0" stroke="black" strokeWidth="2" />
+            <!-- Линии для дорог -->
+            <Line fx:id="road2" endX="450.0" endY="150.0" layoutX="15.0" layoutY="35.0" startX="50.0" startY="150.0" stroke="black" strokeWidth="2" />
+
+            <!-- Станции (точки) -->
+            <Circle fx:id="st1" fill="red" layoutX="62.0" layoutY="185.0" radius="5" />
+            <Circle fx:id="st2" fill="RED" layoutX="118.0" layoutY="184.0" radius="5" />
+            <Circle fx:id="st3" fill="RED" layoutX="169.0" layoutY="184.0" radius="5" />
+            <Circle fx:id="st4" fill="RED" layoutX="227.0" layoutY="185.0" radius="5" />
+            <Circle fx:id="generalST" fill="red" layoutX="305.0" layoutY="184.0" radius="5" />
+            <Circle fx:id="st5" fill="red" layoutX="350.0" layoutY="185.0" radius="5" />
+            <Circle fx:id="st6" fill="red" layoutX="397.0" layoutY="184.0" radius="5" />
+            <Circle fx:id="st7" fill="red" layoutX="461.0" layoutY="185.0" radius="5" />
+            <Circle fx:id="st8" fill="red" layoutX="280.0" layoutY="82.0" radius="5" />
+            <Circle fx:id="st9" fill="red" layoutX="289.0" layoutY="115.0" radius="5" />
+            <Circle fx:id="st10" fill="red" layoutX="297.0" layoutY="150.0" radius="5" />
+            <Circle fx:id="st11" fill="red" layoutX="312.0" layoutY="217.0" radius="5" />
+            <Circle fx:id="st12" fill="red" layoutX="323.0" layoutY="264.0" radius="5" />
+            <Label fx:id="timeOfSimulation" layoutX="20.0" layoutY="14.0" prefHeight="29.0" prefWidth="94.0" text="00:00" />
+        </children></AnchorPane>
+
+</children>
+</AnchorPane>
+
