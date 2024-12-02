@@ -1,0 +1,22 @@
+.table-cell {
+    -fx-background-color: white; /* Фон ячейки */
+    -fx-text-fill: #070303;        /* Цвет текста */
+    -fx-font-size: 12px;         /* Размер шрифта */
+}
+
+.table-row-cell:filled:selected {
+    -fx-background-color: #90e18e; /* Цвет выделенной строки */
+}
+
+.table-row-cell:empty {
+    -fx-background-color: #ffcccc; /* Цвет пустых строк, изменен на ярко-красный */
+}
+
+.table-row-cell {
+    -fx-border-color: lightgrey;  /* Цвет границ строк */
+    -fx-border-width: 0 0 1 0;    /* Только нижняя граница */
+}
+
+.table-cell:empty {
+    -fx-background-color: #75bdf4; /* Цвет пустых ячеек */
+}

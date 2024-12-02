@@ -2,6 +2,7 @@ package com.example.kurs2;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
@@ -12,6 +13,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+
+import java.io.IOException;
 
 public class HelloController {
 
@@ -30,7 +39,7 @@ public class HelloController {
 
     private Modelling modelling ;
 
-
+    private OptionsSimulation optionsSimulation;
 
     @FXML
     public void initialize() {
@@ -121,6 +130,36 @@ public class HelloController {
 
         start.setDisable(false);
         stopButton.setDisable(true);
+    }
+
+    public void options(ActionEvent actionEvent) {
+        try {
+            // Загрузка FXML файла для окна настроек
+            FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("optionsSimulation.fxml"));
+            Parent root = fxmlLoader.load();
+
+            // Создание нового окна
+            Stage stage = new Stage();
+            stage.setTitle("Настройки симуляции");
+            stage.initModality(Modality.APPLICATION_MODAL); // Блокирует основное окно, пока открыто окно настроек
+            stage.setScene(new Scene(root));
+
+            // Получение контроллера окна настроек
+            OptionsSimulation optionsController = fxmlLoader.getController();
+
+            // Отображение окна настроек
+            stage.showAndWait();
+
+//            // Получение данных, введённых пользователем
+//            System.out.println("Начальное время: " + optionsController.getStartTime());
+//            System.out.println("Шаг симуляции: " + optionsController.getSimulationStep());
+//            System.out.println("Процент поездов с событиями: " + optionsController.getEventPercentage());
+//            System.out.println("Шанс события 1: " + optionsController.getEvent1Chance());
+//            System.out.println("Шанс события 2: " + optionsController.getEvent2Chance());
+//            System.out.println("Шанс события 3: " + optionsController.getEvent3Chance());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 }

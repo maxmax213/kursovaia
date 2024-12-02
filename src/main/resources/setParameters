@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.shape.Line?>
+<?import javafx.scene.text.Font?>
+
+<TabPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml">
+    <Tab text="Загрузка расписания">
+        <AnchorPane>
+            <VBox spacing="10" padding="10">
+                <Label text="Время начала симуляции:" />
+                <TextField fx:id="startTimeField" promptText="Введите время (например, 00:00)" />
+
+                <Label text="Шаг симуляции:" />
+                <ComboBox fx:id="simulationStepBox">
+                    <items>
+                        <FXCollections fx:factory="observableArrayList">
+                            <String fx:value="15 минут" />
+                            <String fx:value="30 минут" />
+                        </FXCollections>
+                    </items>
+                </ComboBox>
+
+                <TableView fx:id="scheduleTable">
+                    <columns>
+                        <TableColumn fx:id="startStationColumn" text="Станция начала" />
+                        <TableColumn fx:id="endStationColumn" text="Станция конца" />
+                        <TableColumn fx:id="departureTimeColumn" text="Время отправления" />
+                    </columns>
+                </TableView>
+
+                <Button text="Добавить запись" onAction="#addScheduleRecord" />
+            </VBox>
+        </AnchorPane>
+    </Tab>
+
+    <Tab text="Управление событиями">
+        <AnchorPane>
+            <VBox spacing="10" padding="10">
+                <Label text="Процент поездов с событиями:" />
+                <TextField fx:id="eventPercentageField" promptText="Введите процент (0-100)" />
+
+                <Label text="Шанс события 1:" />
+                <TextField fx:id="event1ChanceField" promptText="Введите шанс (%)" />
+
+                <Label text="Шанс события 2:" />
+                <TextField fx:id="event2ChanceField" promptText="Введите шанс (%)" />
+
+                <Label text="Шанс события 3:" />
+                <TextField fx:id="event3ChanceField" promptText="Введите шанс (%)" />
+            </VBox>
+        </AnchorPane>
+    </Tab>
+</TabPane>
