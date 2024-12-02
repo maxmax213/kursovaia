@@ -11,8 +11,6 @@
 <?import javafx.scene.shape.Circle?>
 <?import javafx.scene.shape.Line?>
 <?import javafx.scene.text.Font?>
-<?import javafx.scene.control.Button?>
-
 
 <AnchorPane fx:id="pane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="460.0" prefWidth="747.0" style="-fx-background-color: #F4F7FB;" xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.kurs2.HelloController">
 <children>
@@ -46,7 +44,7 @@
                     <Insets />
                 </opaqueInsets>
             </Separator>
-            <Button fx:id="stop" layoutX="14.0" layoutY="131.0" mnemonicParsing="false" prefHeight="29.0" prefWidth="175.0" style="-fx-background-color: #fafafa; -fx-border-color: #ccc; -fx-border-radius: 5px;" text="Остановить симуляцию">
+            <Button fx:id="stopButton" layoutX="14.0" layoutY="131.0" mnemonicParsing="false" onAction="#stopSimulation" prefHeight="29.0" prefWidth="175.0" style="-fx-background-color: #fafafa; -fx-border-color: #ccc; -fx-border-radius: 5px;" text="Остановить симуляцию">
                 <font>
                     <Font name="Montserrat Regular" size="13.0" />
                 </font>
@@ -113,9 +111,8 @@
             <Circle fx:id="st10" fill="red" layoutX="297.0" layoutY="150.0" radius="5" />
             <Circle fx:id="st11" fill="red" layoutX="312.0" layoutY="217.0" radius="5" />
             <Circle fx:id="st12" fill="red" layoutX="323.0" layoutY="264.0" radius="5" />
-            <Label fx:id="timeOfSimulation" layoutX="20.0" layoutY="14.0" prefHeight="29.0" prefWidth="94.0" text="00:00" />
+            <Label fx:id="LabeltimeOfSimulation" layoutX="20.0" layoutY="14.0" prefHeight="29.0" prefWidth="94.0" text="00:00" />
         </children></AnchorPane>
 
 </children>
 </AnchorPane>
-

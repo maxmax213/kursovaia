@@ -17,7 +17,8 @@ public class HelloController {
 
     @FXML public AnchorPane formOfSimulation;
     @FXML private Button start;
-    @FXML public Label timeOfSimulation;
+    @FXML private Button stopButton;
+    @FXML public Label LabeltimeOfSimulation;
 
     private final List<Train> trains = new ArrayList<>();
 
@@ -27,8 +28,14 @@ public class HelloController {
 
     private Timetable timetable;
 
+    private Modelling modelling ;
+
+
+
     @FXML
     public void initialize() {
+
+        modelling  = new Modelling();
 
         /**
          * Установка контенера для анимации и карты станций
@@ -51,8 +58,8 @@ public class HelloController {
 
         addIntermediateStations();
 
-        timetable = new Timetable(15,stations);
-        timetable.setFormOfSimulation(formOfSimulation);
+        start.setDisable(false);
+        stopButton.setDisable(true);
 
     }
 
@@ -82,23 +89,38 @@ public class HelloController {
     }
 
     public void startSimulation(ActionEvent actionEvent) {
-        List<String> directRoute = route.buildDirectRoute("st1", "st8");
-        System.out.println("Прямой маршрут от st1 к st7: " + directRoute);
+
+
+        /**
+         * Инцилизируем каждый раз расписание внутри фнкции для удобства(полного обновления данных) и определяем его для моделирования
+         */
+        timetable = new Timetable(15,stations);
+        timetable.setFormOfSimulation(formOfSimulation);
+
+        modelling.setTimetable(timetable);
+        modelling.setTimeStart("00:00"); //Определние начала симуляции(HH:MM)
+        modelling.setLabelOfTime(LabeltimeOfSimulation);
+
         timetable.addRouteWithTrain("st1", "st8",15);
-        timetable.addRouteWithTrain("st1", "st12",0);
-        timetable.addRouteWithTrain("st9", "st1",60);
+        //timetable.addRouteWithTrain("st1", "st12",0);
+        //timetable.addRouteWithTrain("st9", "st1",60);
         //timetable.addRouteWithTrain("st10", "st7",100);
 
 
-        Modelling modelling = new Modelling(timetable, timeOfSimulation,"00:00");
 
         modelling.startSimulation();
 
-
-//            List<String> routeWithIntermediate = route.buildRouteWithIntermediate("st1", "st12", "st2");
-//        System.out.println("Маршрут с промежуточной станцией : " + routeWithIntermediate);
+        start.setDisable(true);
+        stopButton.setDisable(false);
 
     }
 
+    public void stopSimulation(ActionEvent actionEvent) {
+        modelling.resetSimulation();
+
+
+        start.setDisable(false);
+        stopButton.setDisable(true);
+    }
 
 }

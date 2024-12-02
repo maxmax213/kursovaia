@@ -46,7 +46,9 @@ public class Event {
      */
     public void generateEvents() {
         // Определяем общее количество поездов, которым будут назначены события
+
         int totalTrainsWithEvents = (routes.size() * totalEventPercentage) / 100;
+
 
         List<Train> eligibleTrains = new ArrayList<>(trains);
         for (int i = 0; i < totalTrainsWithEvents && !eligibleTrains.isEmpty(); i++) {
@@ -58,9 +60,11 @@ public class Event {
 
             if (randomChance < delayEventCount) {
                 generateDelayEvent(selectedTrain); // Событие "задержка"
-            } else if (randomChance < delayEventCount + accidentEventCount) {
+            }
+            if (randomChance < delayEventCount ) {
                 generateAccidentEvent(selectedTrain); // Событие "авария"
-            } else if (randomChance < delayEventCount + accidentEventCount + breakEventCount) {
+            }
+            if (randomChance < delayEventCount + accidentEventCount + breakEventCount) {
                 generateBreakEvent(); // Событие "Поломка пути"
             }
         }

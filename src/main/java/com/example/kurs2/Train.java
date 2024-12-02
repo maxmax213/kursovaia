@@ -65,7 +65,11 @@ public class Train {
     private final List<Delay> delays = new ArrayList<>();
     private List<Break> breaks = new ArrayList<>();
 
+
+
+
     public Train(int id, AnchorPane formOfSimulation, Map<String, Circle> stations, int startTime, int simulationStepMinutes) {
+        this.id = id;
         this.train = new Circle(3, Color.BLUE);
         this.transition = new SequentialTransition();
         this.formOfSimulation = formOfSimulation;
@@ -361,5 +365,9 @@ public class Train {
 
     public int getStartTime() {
         return startTime;
+    }
+
+    public Circle getTrainNode() {
+        return train;
     }
 }

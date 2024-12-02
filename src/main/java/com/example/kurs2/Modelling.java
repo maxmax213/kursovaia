@@ -7,13 +7,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 
 public class Modelling {
-    private final Timetable timetable;
-    private final Label timeOfSimulation;
-    private final ScheduledExecutorService simulationExecutor;
+    private Timetable timetable;
+    private Label LabletimeOfSimulation;
+    private ScheduledExecutorService simulationExecutor;
 
     private int currentTimeInMinutes;
     private List<Train> trains;
@@ -23,13 +24,13 @@ public class Modelling {
 
     public void updateTrains(){
         this.trains = new ArrayList<>(timetable.getTrains());
+        this.routes = new ArrayList<>(timetable.getRoutes());
     }
 
     public Modelling(Timetable timetable, Label timeOfSimulation, String timeStart) {
         this.timetable = timetable;
-        this.timeOfSimulation = timeOfSimulation;
+        this.LabletimeOfSimulation = timeOfSimulation;
         this.currentTimeInMinutes = timeToMinutes(timeStart);
-        this.simulationExecutor = Executors.newScheduledThreadPool(1);
         this.trains = new ArrayList<>(timetable.getTrains());
         this.routes = new ArrayList<>(timetable.getRoutes());
 
@@ -37,19 +38,52 @@ public class Modelling {
         setEvents();
     }
 
+    public Modelling() {
+
+    }
+
+    public void setLabelOfTime(Label LabeltimeOfSimulation){
+        this.LabletimeOfSimulation = LabeltimeOfSimulation;
+    }
+
+    public void setTimetable(Timetable timetable) {
+        this.timetable = timetable;
+        this.trains = new ArrayList<>(timetable.getTrains());
+        this.routes = new ArrayList<>(timetable.getRoutes());
+
+
+
+        System.out.println("j");
+    }
+
+    public void setTimeStart(String timeStart){
+        this.currentTimeInMinutes = timeToMinutes(timeStart);
+    }
+
+
     public void setEvents() {
-        Event eventGenerator = new Event(routes, trains, 50, 30, 20, 20);
+        System.out.println("routs - " + routes.size());
+        Event eventGenerator = new Event(routes, trains, 100, 80, 80, 80);
         eventGenerator.generateEvents();
     }
 
     public void startSimulation() {
+
+
+        if (simulationExecutor != null && !simulationExecutor.isShutdown()) {
+            simulationExecutor.shutdownNow(); // Остановка текущего, если он ещё активен
+        }
+        simulationExecutor = new ScheduledThreadPoolExecutor(1); // Создаём новый экземпляр
+
+        updateTrains();
+        setEvents();
+
         simulationExecutor.scheduleAtFixedRate(this::updateSimulation, 0, 1, TimeUnit.SECONDS);
     }
 
     private void updateSimulation() {
         Platform.runLater(() -> {
-            updateTrains();
-            timeOfSimulation.setText(timetable.minutesToTime(currentTimeInMinutes));
+            LabletimeOfSimulation.setText(timetable.minutesToTime(currentTimeInMinutes));
 
             if (currentTimeInMinutes >= 1440) {
                 System.out.println("Simulation stopped: Time exceeded 24 hours.");
@@ -81,11 +115,11 @@ public class Modelling {
                 String startStation = accident.getDepartureStationId();
                 String endStation = accident.getArrivalStationId();
                 String lastStation = train.getRoute().getStationList().get(train.getRoute().getStationList().size() - 1);
-                int startTime = currentTimeInMinutes + 180; // 3 часа = 180 минут
+                int startTime = currentTimeInMinutes + 180; // 3 часа = 180 минут потом
 
                 System.out.println("Создается новый поезд из-за длительной аварии между " + startStation + " и " + endStation);
                 timetable.addRouteWithTrainPlusRT(startStation, lastStation, endStation, startTime);
-
+                updateTrains();
                 // Отмечаем аварию как разрешенную
                 accident.resolve();
             }
@@ -115,5 +149,17 @@ public class Modelling {
 
     public void stopSimulation() {
         simulationExecutor.shutdownNow();
+    }
+
+    public void resetSimulation(){
+
+        simulationExecutor.shutdownNow();
+        timetable.clearAnimation();
+
+        stopSimulation();
+        trains.clear();
+        routes.clear();
+        currentTimeInMinutes = 0;
+        Platform.runLater(() -> LabletimeOfSimulation.setText("00:00"));
     }
 }

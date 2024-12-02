@@ -86,4 +86,12 @@ public class Timetable {
         return String.format("%02d:%02d", hours, mins);
     }
 
+    public void clearAnimation(){
+        if (formOfSimulation != null) {
+            formOfSimulation.getChildren().removeIf(node ->
+                    node instanceof Circle && trains.stream().anyMatch(train -> train.getTrainNode() == node)
+            );
+        }
+    }
+
 }
