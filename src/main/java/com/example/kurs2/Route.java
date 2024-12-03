@@ -164,7 +164,7 @@ public class Route {
         stationMap.put("st8", List.of("st9"));
         stationMap.put("st9", List.of("st8", "st10"));
         stationMap.put("st10", List.of("generalST", "st9"));
-        stationMap.put("st11", List.of("st12"));
+        stationMap.put("st11", List.of("generalST", "st12"));
         stationMap.put("st12", List.of("st11"));
     }
 

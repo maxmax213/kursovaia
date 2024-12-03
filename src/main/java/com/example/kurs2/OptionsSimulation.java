@@ -1,217 +1,229 @@
 package com.example.kurs2;
 
-import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.event.ActionEvent;
 import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.stage.Stage;
 
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+
+import java.util.HashSet;
+import java.util.Set;
 
 public class OptionsSimulation {
 
-    @FXML
-    private TextField startTimeField;
-    @FXML
-    private ComboBox<String> simulationStepBox;
-    @FXML
-    private TextField eventPercentageField;
-    @FXML
-    private TextField event1ChanceField;
-    @FXML
-    private TextField event2ChanceField;
-    @FXML
-    private TextField event3ChanceField;
-    @FXML
-    private TableView<ScheduleRecord> scheduleTable;
-    @FXML
-    private TableColumn<ScheduleRecord, String> startStationColumn;
-    @FXML
-    private TableColumn<ScheduleRecord, String> endStationColumn;
-    @FXML
-    private TableColumn<ScheduleRecord, String> departureTimeColumn;
+    @FXML private TextField startTimeField;
+    @FXML private ComboBox<String> simulationStepBox;
+    @FXML private TextField eventPercentageField;
+    @FXML private TextField event1ChanceField;
+    @FXML private TextField event2ChanceField;
+    @FXML private TextField event3ChanceField;
 
-    private final ObservableList<ScheduleRecord> scheduleData = FXCollections.observableArrayList();
+    private String startTime;  // Время начала симуляции
+    private int simulationStep;  // Шаг симуляции в минутах
+    private int eventPercentage;  // Процент поездов с событиями
+    private int event1Chance;  // Шанс события 1
+    private int event2Chance;  // Шанс события 2
+    private int event3Chance;  // Шанс события 3
 
-    private final Map<String, List<String>> stationMap = new HashMap<>();
-    private String startTime;
-    private int simulationStep;
-    private int eventPercentage;
-    private int event1Chance;
-    private int event2Chance;
-    private int event3Chance;
+    private List<RowTimetable> rows = new ArrayList<>();
+    private final List<String> validStations = List.of(
+            "st1", "st2", "st3", "st4", "st5", "st6",
+            "st7", "st8", "st9", "st10", "st11", "st12", "generalST"
+    );
+
+    /**
+     * Добавление таблциы
+     */
+
+    @FXML private TableView<ScheduleRecord> scheduleTable;
+    @FXML private TableColumn<ScheduleRecord, String> startStationColumn;
+    @FXML private TableColumn<ScheduleRecord, String> endStationColumn;
+    @FXML private TableColumn<ScheduleRecord, String> departureTimeColumn;
+
+    private ObservableList<ScheduleRecord> scheduleData;
+
+    private boolean settingsSaved = false;//сохранение настроек
 
     @FXML
     public void initialize() {
-        initializeStationMap();
 
-        simulationStepBox.setItems(FXCollections.observableArrayList("15 минут", "30 минут"));
-        setupScheduleTable();
+        scheduleData = FXCollections.observableArrayList();
         scheduleTable.setItems(scheduleData);
-        addScheduleRecord();
-    }
 
-    private void initializeStationMap() {
-        stationMap.put("st1", List.of("st2"));
-        stationMap.put("st2", List.of("st1", "st3"));
-        stationMap.put("st3", List.of("st2", "st4"));
-        stationMap.put("st4", List.of("st3", "generalST"));
-        stationMap.put("generalST", List.of("st4", "st5", "st10", "st11"));
-        stationMap.put("st5", List.of("generalST", "st6"));
-        stationMap.put("st6", List.of("st5", "st7"));
-        stationMap.put("st7", List.of("st6"));
-        stationMap.put("st8", List.of("st9"));
-        stationMap.put("st9", List.of("st8", "st10"));
-        stationMap.put("st10", List.of("generalST", "st9"));
-        stationMap.put("st11", List.of("st12"));
-        stationMap.put("st12", List.of("st11"));
-    }
-
-    private void setupScheduleTable() {
-
-        scheduleTable.setEditable(true);
-
-        // Указываем, как значения отображаются
-        startStationColumn.setCellValueFactory(data -> data.getValue().startStationProperty());
-        endStationColumn.setCellValueFactory(data -> data.getValue().endStationProperty());
-        departureTimeColumn.setCellValueFactory(data -> data.getValue().departureTimeProperty());
+        startStationColumn.setCellValueFactory(cellData -> cellData.getValue().startStationProperty());
+        endStationColumn.setCellValueFactory(cellData -> cellData.getValue().endStationProperty());
+        departureTimeColumn.setCellValueFactory(cellData -> cellData.getValue().departureTimeProperty());
 
 
         startStationColumn.setCellFactory(TextFieldTableCell.forTableColumn());
-        startStationColumn.setOnEditCommit(event -> {
-            String newValue = event.getNewValue();
-            if (isValidStation(newValue)) {
-                event.getRowValue().setStartStation(newValue);
-            } else {
-                showAlert(Alert.AlertType.ERROR, "Ошибка", "Некорректная станция: " + newValue);
-                scheduleTable.refresh();
-            }
-        });
-
         endStationColumn.setCellFactory(TextFieldTableCell.forTableColumn());
-        endStationColumn.setOnEditCommit(event -> {
-            String newValue = event.getNewValue();
-            if (isValidStation(newValue)) {
-                event.getRowValue().setEndStation(newValue);
-            } else {
-                showAlert(Alert.AlertType.ERROR, "Ошибка", "Некорректная станция: " + newValue);
-                scheduleTable.refresh();
-            }
-        });
-
         departureTimeColumn.setCellFactory(TextFieldTableCell.forTableColumn());
-        departureTimeColumn.setOnEditCommit(event -> {
-            String newValue = event.getNewValue();
-            if (isValidTime(newValue)) {
-                event.getRowValue().setDepartureTime(newValue);
-            } else {
-                showAlert(Alert.AlertType.ERROR, "Ошибка", "Некорректное время: " + newValue);
-                scheduleTable.refresh();
-            }
-        });
+
+        scheduleTable.setEditable(true);
+
+        simulationStepBox.setValue("15 минут");
     }
 
-
-
     @FXML
-    private void saveStartTime() {
-        String inputTime = startTimeField.getText();
-        if (isValidTime(inputTime)) {
-            startTime = inputTime;
-            simulationStep = simulationStepBox.getValue().equals("15 минут") ? 15 : 30;
-            showAlert(Alert.AlertType.INFORMATION, "Сохранено", "Время начала: " + startTime + ", шаг: " + simulationStep);
-        } else {
-            showAlert(Alert.AlertType.ERROR, "Ошибка", "Некорректное время. Используйте формат HH:MM.");
+    public void saveOptions(ActionEvent actionEvent) {
+
+        Set<String> uniqueRecords = new HashSet<>();
+
+        rows.clear();
+        StringBuilder errors = new StringBuilder();
+
+        startTime = validateTime(startTimeField.getText(), "Время начала", errors);
+        simulationStep = parseSimulationStep(simulationStepBox.getValue(), errors);
+        eventPercentage = validatePercentage(eventPercentageField, "Процент событий", errors);
+        event1Chance = validatePercentage(event1ChanceField, "Шанс события 1", errors);
+        event2Chance = validatePercentage(event2ChanceField, "Шанс события 2", errors);
+        event3Chance = validatePercentage(event3ChanceField, "Шанс события 3", errors);
+
+        if(scheduleData.isEmpty()){
+            errors.append("Необходимо добавить на маршрут хотя бы один поезд").append("\n");
         }
-    }
 
-
-    @FXML
-    private void addScheduleRecord() {
-        ScheduleRecord newRecord = new ScheduleRecord("", "", "");
-        scheduleData.add(newRecord);
-        scheduleTable.scrollTo(newRecord); // Прокрутка к добавленной строке
-    }
-
-
-    @FXML
-    public void validateAndSaveParameters() {
-        try {
-            eventPercentage = Integer.parseInt(eventPercentageField.getText());
-            event1Chance = Integer.parseInt(event1ChanceField.getText());
-            event2Chance = Integer.parseInt(event2ChanceField.getText());
-            event3Chance = Integer.parseInt(event3ChanceField.getText());
-
-            if (isValidPercentage(eventPercentage) && isValidPercentage(event1Chance)
-                    && isValidPercentage(event2Chance) && isValidPercentage(event3Chance)) {
-                showAlert(Alert.AlertType.INFORMATION, "Сохранено", "Параметры событий успешно сохранены.");
-            } else {
-                throw new NumberFormatException("Значения должны быть от 0 до 100.");
-            }
-        } catch (NumberFormatException e) {
-            showAlert(Alert.AlertType.ERROR, "Ошибка", "Некорректные данные. Убедитесь, что значения от 0 до 100.");
-        }
-    }
-
-    private boolean isValidTime(String time) {
-        try {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
-            LocalTime.parse(time, formatter);
-            return true;
-        } catch (DateTimeParseException e) {
-            return false;
-        }
-    }
-
-
-    private boolean isValidPercentage(int value) {
-        return value >= 0 && value <= 100;
-    }
-
-    @FXML
-    private void validateAndSaveSchedule() {
         for (ScheduleRecord record : scheduleData) {
             String startStation = record.getStartStation();
             String endStation = record.getEndStation();
             String departureTime = record.getDepartureTime();
 
-            if (!stationMap.containsKey(startStation) || !stationMap.get(startStation).contains(endStation)) {
-                showAlert(Alert.AlertType.ERROR, "Ошибка", "Недопустимые станции: " + startStation + " -> " + endStation);
-                return;
+            if (!validStations.contains(startStation)) {
+                errors.append("Некорректная станция отправления: ").append(startStation).append("\n");
+                continue;
             }
 
-            if (!isValidTime(departureTime)) {
-                showAlert(Alert.AlertType.ERROR, "Ошибка", "Некорректное время отправления: " + departureTime);
-                return;
+            if (!validStations.contains(endStation)) {
+                errors.append("Некорректная конечная станция: ").append(endStation).append("\n");
+                continue;
             }
+
+            int departureTimeInMinutes;
+            try {
+                departureTimeInMinutes = timeToMinutes(departureTime);
+            } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
+                errors.append("Некорректное время отправления: ").append(departureTime).append("\n");
+                continue;
+            }
+
+            String uniqueKey = startStation + "|" + endStation + "|" + departureTime;
+
+            if (uniqueRecords.contains(uniqueKey)) {
+                errors.append("Дублирующаяся запись: ").append(uniqueKey).append("\n");
+                continue;
+            }
+
+            uniqueRecords.add(uniqueKey);
+            rows.add(new RowTimetable(startStation, endStation, departureTimeInMinutes));
         }
-        showAlert(Alert.AlertType.INFORMATION, "Сохранено", "Все записи успешно сохранены.");
+
+        if (errors.length() > 0) {
+            showAlert("Ошибки ввода", errors.toString());
+        } else {
+
+            settingsSaved = true;
+
+            Stage stage = (Stage) startTimeField.getScene().getWindow();
+            stage.close();
+
+            resetFields();
+        }
     }
 
-    private void showAlert(Alert.AlertType type, String title, String content) {
-        Alert alert = new Alert(type);
+    private String validateTime(String time, String fieldName, StringBuilder errors) {
+        if (time == null || time.isEmpty()) {
+            errors.append(fieldName).append(" не может быть пустым.\n");
+            return null;
+        }
+        try {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+            LocalTime.parse(time, formatter);
+            return time;
+        } catch (DateTimeParseException e) {
+            errors.append(fieldName).append(" должно быть в формате HH:mm.\n");
+            return null;
+        }
+    }
+
+    private int parseSimulationStep(String stepText, StringBuilder errors) {
+        if (stepText == null) {
+            errors.append("Шаг симуляции не выбран.\n");
+            return 0;
+        }
+        switch (stepText) {
+            case "15 минут": return 15;
+            case "30 минут": return 30;
+            default:
+                errors.append("Некорректный шаг симуляции.\n");
+                return 0;
+        }
+    }
+
+    private int validatePercentage(TextField field, String fieldName, StringBuilder errors) {
+        String text = field.getText();
+        if (text.isEmpty()) {
+            errors.append(fieldName).append(" не может быть пустым.\n");
+            return 0;
+        }
+        if (!text.matches("\\d+")) {
+            errors.append(fieldName).append(" должно быть числом.\n");
+            field.clear();
+            return 0;
+        }
+        int value = Integer.parseInt(text);
+        if (value < 0 || value > 100) {
+            errors.append(fieldName).append(" должно быть в диапазоне от 0 до 100.\n");
+            field.clear();
+            return 0;
+        }
+        return value;
+    }
+
+    private void showAlert(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(title);
-        alert.setContentText(content);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
         alert.showAndWait();
     }
 
-    public ObservableList<ScheduleRecord> getScheduleData() {
-        return scheduleData;
+    @FXML
+    public void addScheduleRecord(ActionEvent actionEvent) {
+        if (scheduleData.size() >= 10) {
+            showAlert("Ошибка", "Нельзя добавить больше 10 записей.");
+            return;
+        }
+        scheduleData.add(new ScheduleRecord("st1", "st7", "00:00"));
     }
 
-    public String getStartTime() {
-        return startTime;
+
+    private int timeToMinutes(String time) {
+        String[] parts = time.split(":");
+        return Integer.parseInt(parts[0]) * 60 + Integer.parseInt(parts[1]);
+    }
+
+    private void resetFields() {
+        startTimeField.clear();
+        eventPercentageField.clear();
+        event1ChanceField.clear();
+        event2ChanceField.clear();
+        event3ChanceField.clear();
     }
 
     public int getSimulationStep() {
         return simulationStep;
+    }
+
+    public String getStartTime() {
+        return startTime;
     }
 
     public int getEventPercentage() {
@@ -230,17 +242,27 @@ public class OptionsSimulation {
         return event3Chance;
     }
 
-    public void saveOptions(ActionEvent actionEvent) {
-    }
-
-    private final List<String> validStations = List.of(
-            "st1", "st2", "st3", "st4", "st5", "st6",
-            "st7", "st8", "st9", "st10", "st11", "st12", "generalST"
-    );
-
-    private boolean isValidStation(String station) {
-        return validStations.contains(station);
+    public List<RowTimetable> getRows() {
+        return new ArrayList<>(rows); // Возвращаем копию списка
     }
 
 
+    public void cancelOptions(ActionEvent actionEvent) {
+        settingsSaved = false;
+        Stage stage = (Stage) startTimeField.getScene().getWindow();
+        stage.close();
+    }
+
+
+    public void removeScheduleRecord(ActionEvent actionEvent) {
+        if (!scheduleData.isEmpty()) {
+            scheduleData.remove(scheduleData.size() - 1);
+        } else {
+            showAlert("Ошибка", "Таблица пуста.");
+        }
+    }
+
+    public boolean isSettingsSaved() {
+        return settingsSaved;
+    }
 }

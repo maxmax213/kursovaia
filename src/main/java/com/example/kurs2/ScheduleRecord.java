@@ -1,12 +1,14 @@
 package com.example.kurs2;
 
 import javafx.beans.property.SimpleStringProperty;
+
+import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
 public class ScheduleRecord {
-    private final StringProperty startStation;
-    private final StringProperty endStation;
-    private final StringProperty departureTime;
+    private final SimpleStringProperty startStation;
+    private final SimpleStringProperty endStation;
+    private final SimpleStringProperty departureTime;
 
     public ScheduleRecord(String startStation, String endStation, String departureTime) {
         this.startStation = new SimpleStringProperty(startStation);

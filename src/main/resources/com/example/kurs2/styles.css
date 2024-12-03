@@ -1,22 +1,50 @@
+/* Общий стиль для кнопок */
+.button {
+    -fx-background-color: #4CAF50; /* Зелёный фон */
+    -fx-text-fill: white;          /* Белый текст */
+    -fx-font-size: 14px;           /* Увеличенный размер шрифта */
+    -fx-padding: 5px 10px;         /* Отступы */
+    -fx-border-radius: 5px;        /* Скругленные углы */
+}
+
+.button:hover {
+    -fx-background-color: #45a049; /* Более тёмный зелёный при наведении */
+}
+
+/* Общий стиль для текстовых полей */
+.text-field {
+    -fx-border-color: #90CAF9;     /* Голубая граница */
+    -fx-border-radius: 5px;
+    -fx-padding: 5px;
+    -fx-background-color: #F0F4C3; /* Светлый фон */
+}
+
+/* Стиль для заголовков */
+.label {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+
+/* Стиль для таблиц */
 .table-cell {
-    -fx-background-color: white; /* Фон ячейки */
-    -fx-text-fill: #070303;        /* Цвет текста */
-    -fx-font-size: 12px;         /* Размер шрифта */
+    -fx-background-color: white;
+    -fx-text-fill: #070303;
+    -fx-font-size: 12px;
 }
 
 .table-row-cell:filled:selected {
-    -fx-background-color: #90e18e; /* Цвет выделенной строки */
+    -fx-background-color: #90e18e;
 }
 
 .table-row-cell:empty {
-    -fx-background-color: #ffcccc; /* Цвет пустых строк, изменен на ярко-красный */
+    -fx-background-color: #ffcccc;
 }
 
 .table-row-cell {
-    -fx-border-color: lightgrey;  /* Цвет границ строк */
-    -fx-border-width: 0 0 1 0;    /* Только нижняя граница */
+    -fx-border-color: lightgrey;
+    -fx-border-width: 0 0 1 0;
 }
 
 .table-cell:empty {
-    -fx-background-color: #75bdf4; /* Цвет пустых ячеек */
+    -fx-background-color: #eaefef;
 }

@@ -28,6 +28,7 @@ public class HelloController {
     @FXML private Button start;
     @FXML private Button stopButton;
     @FXML public Label LabeltimeOfSimulation;
+    private OptionsSimulation options;
 
     private final List<Train> trains = new ArrayList<>();
 
@@ -41,8 +42,32 @@ public class HelloController {
 
     private OptionsSimulation optionsSimulation;
 
+
+    /**
+     * Параметры симуляции которые загружаются из настроек симуляции
+     */
+
+
+    String startTime = "00:00";
+    int step = 15;
+    int eventPercentage = 15;
+    int event1Chance = 25;
+    int event2Chance = 25;
+    int event3Chance = 25;
+    List<RowTimetable> rows = new ArrayList<>();
+
+
+
+
+    /**
+     * --------------------------------------------------
+     */
+
     @FXML
     public void initialize() {
+
+        setDefaultValues();
+
 
         modelling  = new Modelling();
 
@@ -70,6 +95,11 @@ public class HelloController {
         start.setDisable(false);
         stopButton.setDisable(true);
 
+    }
+
+    private void setDefaultValues() {
+
+        rows.add(new RowTimetable("st1", "st7", 0));
     }
 
     private void addIntermediateStations() {
@@ -103,17 +133,22 @@ public class HelloController {
         /**
          * Инцилизируем каждый раз расписание внутри фнкции для удобства(полного обновления данных) и определяем его для моделирования
          */
-        timetable = new Timetable(15,stations);
+        timetable = new Timetable(step,stations);
         timetable.setFormOfSimulation(formOfSimulation);
 
         modelling.setTimetable(timetable);
-        modelling.setTimeStart("00:00"); //Определние начала симуляции(HH:MM)
+        modelling.setTimeStart(startTime); //Определние начала симуляции(HH:MM)
         modelling.setLabelOfTime(LabeltimeOfSimulation);
 
-        timetable.addRouteWithTrain("st1", "st8",15);
-        //timetable.addRouteWithTrain("st1", "st12",0);
-        //timetable.addRouteWithTrain("st9", "st1",60);
-        //timetable.addRouteWithTrain("st10", "st7",100);
+
+        for (RowTimetable row : rows) {
+            timetable.addRouteWithTrain(row.getStartStation(), row.getEndStation(), row.getDepartureTime());
+        }
+
+//        timetable.addRouteWithTrain("st12", "st7",0);
+//        //timetable.addRouteWithTrain("st1", "st12",0);
+//        //timetable.addRouteWithTrain("st9", "st1",60);
+//        //timetable.addRouteWithTrain("st10", "st7",100);
 
 
 
@@ -138,28 +173,51 @@ public class HelloController {
             FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("optionsSimulation.fxml"));
             Parent root = fxmlLoader.load();
 
+            optionsSimulation = fxmlLoader.getController();
+
+
             // Создание нового окна
             Stage stage = new Stage();
             stage.setTitle("Настройки симуляции");
             stage.initModality(Modality.APPLICATION_MODAL); // Блокирует основное окно, пока открыто окно настроек
             stage.setScene(new Scene(root));
-
-            // Получение контроллера окна настроек
-            OptionsSimulation optionsController = fxmlLoader.getController();
-
-            // Отображение окна настроек
             stage.showAndWait();
 
-//            // Получение данных, введённых пользователем
-//            System.out.println("Начальное время: " + optionsController.getStartTime());
-//            System.out.println("Шаг симуляции: " + optionsController.getSimulationStep());
-//            System.out.println("Процент поездов с событиями: " + optionsController.getEventPercentage());
-//            System.out.println("Шанс события 1: " + optionsController.getEvent1Chance());
-//            System.out.println("Шанс события 2: " + optionsController.getEvent2Chance());
-//            System.out.println("Шанс события 3: " + optionsController.getEvent3Chance());
+            if (optionsSimulation != null && optionsSimulation.isSettingsSaved()) {
+                processOptions();
+            }
+
+
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private void processOptions() {
+
+        startTime = optionsSimulation.getStartTime();
+        step = optionsSimulation.getSimulationStep();
+        eventPercentage = optionsSimulation.getEventPercentage();
+        event1Chance = optionsSimulation.getEvent1Chance();
+        event2Chance = optionsSimulation.getEvent2Chance();
+        event3Chance = optionsSimulation.getEvent3Chance();
+
+        rows.clear();
+        rows = optionsSimulation.getRows();
+
+//        // Вывод в консоль
+//        System.out.println("Полученные настройки:");
+//        System.out.println("Время начала: " + startTime);
+//        System.out.println("Процент событий: " + eventPercentage);
+//        System.out.println("Шанс события 1: " + event1Chance);
+//        System.out.println("Шанс события 2: " + event2Chance);
+//        System.out.println("Шанс события 3: " + event3Chance);
+
+//        System.out.println("Маршруты:");
+//        for (RowTimetable row : rows) {
+//            System.out.println(row);
+//        }
+
     }
 
 }
