@@ -13,7 +13,6 @@ import javafx.scene.shape.Path;
 import javafx.util.Duration;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -39,6 +38,7 @@ public class Train {
     private boolean hasFinished = false;
     private int currentSimulationTime;
     private final JourneyLog journeyLog = new JourneyLog();
+    private final JourneyLog journey = new JourneyLog();
 
     /**
      * Параметры поезда:
@@ -58,14 +58,11 @@ public class Train {
      * Accident - поломка поезда
      * delays - задержки на станциях
      * break - участки, где поезду нужно снизить скорость
-     *
      */
 
     private Accident accident;
     private final List<Delay> delays = new ArrayList<>();
     private List<Break> breaks = new ArrayList<>();
-
-
 
 
     public Train(int id, AnchorPane formOfSimulation, Map<String, Circle> stations, int startTime, int simulationStepMinutes) {
@@ -83,12 +80,146 @@ public class Train {
     }
 
 
+    /**
+     * Расписание поезда учитывая все события
+     * Для удобства будем считать что путь от одной станции к другой при нормальных условиях 60 минут а стоянка 15 минут
+     */
+
+
+    public void generateJourneyLog() {
+        List<String> stationIds = route.getStationList();
+        int simulationTime = startTime;
+
+        // Обработка первой станции
+        Circle startStation = stations.get(stationIds.get(0));
+        String depTime = calculateSimulationTime(simulationTime);
+        journey.addEntry(stationIds.get(0), "N/A", "Normal");
+        journey.updateEntry(stationIds.get(0), depTime, "Normal");
+
+        // Обработка промежуточных станций
+        for (int i = 1; i < stationIds.size() - 1; i++) {
+            String status = "Normal";
+            int timeOfPath = 0;
+            int timeOfStay = 0;
+
+            String currentStationId = stationIds.get(i);
+            String nextStationId = stationIds.get(i + 1);
+
+            Circle currentStation = stations.get(currentStationId);
+
+            // Проверка на аварии, задержки и ограничения скорости
+            Break speedLimitBreak = breaks.stream()
+                    .filter(b -> b.getDepartureStationId().equals(currentStationId) &&
+                            b.getArrivalStationId().equals(nextStationId))
+                    .findFirst()
+                    .orElse(null);
+
+            boolean hasAccident = accident != null &&
+                    accident.getDepartureStationId().equals(currentStationId) &&
+                    accident.getArrivalStationId().equals(nextStationId);
+
+            Delay delay = delays.stream()
+                    .filter(d -> d.getStationId().equals(currentStationId))
+                    .findFirst()
+                    .orElse(null);
+
+            if (hasAccident) {
+                if (accident.getDelayTime() > 3) {
+                    journey.addEntry(currentStationId, calculateSimulationTime(simulationTime), "Breakdown");
+                    break;
+                } else {
+                    status = "Breakdown";
+                    timeOfPath += accident.getDelayTime() * 60;
+                }
+            }
+
+            if (speedLimitBreak != null) {
+                timeOfPath += 60 * 3; // Ограничение скорости
+                status = "Break";
+            } else {
+                timeOfPath += 60; // Стандартное время пути
+            }
+
+            if (delay != null) {
+                status = status.equals("Normal") ? "Delay" : status + "-Delay";
+                timeOfStay = 15 + delay.getDelayTime();
+            } else {
+                timeOfStay = 15;
+            }
+
+            simulationTime += timeOfPath;
+
+            String arrivalTime = calculateSimulationTime(simulationTime);
+            journey.addEntry(currentStationId, arrivalTime, status);
+
+            simulationTime += timeOfStay;
+
+            String departureTime = calculateSimulationTime(simulationTime);
+            journey.updateEntry(currentStationId, departureTime, status);
+        }
+
+
+        String secondLastStationId = stationIds.get(stationIds.size() - 2);
+        String lastStationId = stationIds.get(stationIds.size() - 1);
+
+        Circle secondLastStation = stations.get(secondLastStationId);
+
+        String status = "Normal";
+        int timeOfPath = 60; // Стандартное время пути до последней станции
+
+
+        boolean hasAccidentBetweenLastStations = accident != null &&
+                accident.getDepartureStationId().equals(secondLastStationId) &&
+                accident.getArrivalStationId().equals(lastStationId);
+
+        if (hasAccidentBetweenLastStations) {
+            if (accident.getDelayTime() > 3) {
+                journey.addEntry(secondLastStationId, calculateSimulationTime(simulationTime), "Breakdown");
+                System.out.println("Generated Journey Log for Train " + id + ":");
+                for (JourneyLog.StationLogEntry entry : journey.getEntries()) {
+                    System.out.println(entry);
+                }
+                return;
+            } else {
+                status = "Breakdown";
+                timeOfPath += accident.getDelayTime() * 60;
+            }
+        }
+
+        Break speedLimitBreak = breaks.stream()
+                .filter(b -> b.getDepartureStationId().equals(secondLastStationId) &&
+                        b.getArrivalStationId().equals(lastStationId))
+                .findFirst()
+                .orElse(null);
+
+        if (speedLimitBreak != null) {
+            timeOfPath += 60 * 3;
+            status = "Break";
+        }
+
+        simulationTime += timeOfPath;
+        String arrivalTime = calculateSimulationTime(simulationTime);
+        journey.addEntry(lastStationId, arrivalTime, status);
+
+
+        System.out.println("Generated Journey Log for Train " + id + ":");
+        for (JourneyLog.StationLogEntry entry : journey.getEntries()) {
+            System.out.println(entry);
+        }
+
+    }
+
+
+    /**
+     * --------------------------------------------------
+     */
+
+
     public void createPathWithStops() {
+
         boolean flag = false;
-        if (route == null) return;
 
         List<String> stationIds = route.getStationList();
-
 
 
         transition.getChildren().clear();
@@ -279,6 +410,12 @@ public class Train {
         }
     }
 
+
+
+
+
+
+
     private String calculateSimulationTime(int simulationMinutes) {
         int hours = simulationMinutes / 60;
         int minutes = simulationMinutes % 60;
@@ -342,7 +479,7 @@ public class Train {
         return accident;
     }
 
-    public void setBreaks(List<Break> br){
+    public void setBreaks(List<Break> br) {
         this.breaks = new ArrayList<>(br);
     }
 
@@ -356,10 +493,10 @@ public class Train {
 
     private boolean isIntermediateStation(String stationId) {
         Map<String, Circle> intermediateStations = route.getIntermediateStations();
-        return  intermediateStations.containsKey(stationId);
+        return intermediateStations.containsKey(stationId);
     }
 
-    public String getLastST(){
+    public String getLastST() {
         return route.getStationList().getLast();
     }
 

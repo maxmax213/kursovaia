@@ -50,7 +50,7 @@ public class HelloController {
 
     String startTime = "00:00";
     int step = 15;
-    int eventPercentage = 15;
+    int eventPercentage = 0;
     int event1Chance = 25;
     int event2Chance = 25;
     int event3Chance = 25;
@@ -69,7 +69,7 @@ public class HelloController {
         setDefaultValues();
 
 
-        modelling  = new Modelling();
+        modelling  = new Modelling(LabeltimeOfSimulation);
 
         /**
          * Установка контенера для анимации и карты станций
@@ -138,7 +138,7 @@ public class HelloController {
 
         modelling.setTimetable(timetable);
         modelling.setTimeStart(startTime); //Определние начала симуляции(HH:MM)
-        modelling.setLabelOfTime(LabeltimeOfSimulation);
+        modelling.setEventChances(eventPercentage, event1Chance, event2Chance, event3Chance);
 
 
         for (RowTimetable row : rows) {
@@ -160,8 +160,10 @@ public class HelloController {
     }
 
     public void stopSimulation(ActionEvent actionEvent) {
-        modelling.resetSimulation();
 
+
+
+        modelling.resetSimulation();
 
         start.setDisable(false);
         stopButton.setDisable(true);

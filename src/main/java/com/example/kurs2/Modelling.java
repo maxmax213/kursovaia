@@ -5,7 +5,6 @@ import javafx.scene.control.Label;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -22,7 +21,36 @@ public class Modelling {
 
     private List<Break> breaks;
 
-    public void updateTrains(){
+
+    /**
+     * Параметры случайных событий симуляции
+     */
+
+    private int eventPercentage;
+    private int event1Chance;
+    private int event2Chance;
+    private int event3Chance;
+
+
+    public void setEventChances(int eventPercentage, int event1Chance, int event2Chance, int event3Chance) {
+        this.eventPercentage = eventPercentage;
+        this.event1Chance = event1Chance;
+        this.event2Chance = event2Chance;
+        this.event3Chance = event3Chance;
+    }
+
+    public void setEvents() {
+        System.out.println("routs - " + routes.size());
+        Event eventGenerator = new Event(routes, trains, eventPercentage, event1Chance, event2Chance, event3Chance);
+        eventGenerator.generateEvents();
+    }
+
+    /**
+     * --------------------------------------------------
+     */
+
+
+    public void updateTrains() {
         this.trains = new ArrayList<>(timetable.getTrains());
         this.routes = new ArrayList<>(timetable.getRoutes());
     }
@@ -38,11 +66,7 @@ public class Modelling {
         setEvents();
     }
 
-    public Modelling() {
-
-    }
-
-    public void setLabelOfTime(Label LabeltimeOfSimulation){
+    public Modelling(Label LabeltimeOfSimulation) {
         this.LabletimeOfSimulation = LabeltimeOfSimulation;
     }
 
@@ -52,20 +76,15 @@ public class Modelling {
         this.routes = new ArrayList<>(timetable.getRoutes());
 
 
-
         System.out.println("j");
     }
 
-    public void setTimeStart(String timeStart){
+    public void setTimeStart(String timeStart) {
         this.currentTimeInMinutes = timeToMinutes(timeStart);
     }
 
 
-    public void setEvents() {
-        System.out.println("routs - " + routes.size());
-        Event eventGenerator = new Event(routes, trains, 100, 80, 80, 80);
-        eventGenerator.generateEvents();
-    }
+
 
     public void startSimulation() {
 
@@ -127,7 +146,6 @@ public class Modelling {
     }
 
 
-
     private void checkTrainEvents() {
         for (Train train : trains) {
             Route route = train.getRoute();
@@ -151,7 +169,11 @@ public class Modelling {
         simulationExecutor.shutdownNow();
     }
 
-    public void resetSimulation(){
+    public void resetSimulation() {
+
+        for(Train train : trains) {
+            train.generateJourneyLog();
+        }
 
         simulationExecutor.shutdownNow();
         timetable.clearAnimation();
