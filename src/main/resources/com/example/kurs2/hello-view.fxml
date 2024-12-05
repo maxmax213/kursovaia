@@ -5,26 +5,18 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Separator?>
-<?import javafx.scene.control.TextField?>
 <?import javafx.scene.effect.DropShadow?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.shape.Circle?>
 <?import javafx.scene.shape.Line?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane fx:id="pane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="460.0" prefWidth="747.0" style="-fx-background-color: #F4F7FB;" xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.kurs2.HelloController">
+<AnchorPane fx:id="pane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="460.0" prefWidth="747.0" style="-fx-background-color: #F4F7FB;" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.kurs2.HelloController">
 <children>
     <AnchorPane layoutX="200.0" prefHeight="43.0" prefWidth="548.0" style="-fx-background-color: #fff;">
         <effect>
             <DropShadow color="#0000001f" />
         </effect>
-        <children>
-            <TextField focusTraversable="false" layoutX="14.0" layoutY="5.0" prefHeight="29.0" prefWidth="155.0" promptText="Поиск в программе" style="-fx-background-color: #fff; -fx-border-color: #fff;">
-                <font>
-                    <Font name="Montserrat Regular" size="13.0" />
-                </font>
-            </TextField>
-        </children>
     </AnchorPane>
     <AnchorPane prefHeight="460.0" prefWidth="200.0" style="-fx-background-color: #fff;">
         <effect>
@@ -39,7 +31,7 @@
                     <Cursor fx:constant="HAND" />
                 </cursor>
             </Button>
-            <Separator focusTraversable="false" layoutX="14.0" layoutY="69.0" prefHeight="9.0" prefWidth="175.0" style="-fx-background-color: #ccc; -fx-border-style: solid; -fx-border-color: #333;">
+            <Separator focusTraversable="false" layoutX="14.0" layoutY="28.0" prefHeight="9.0" prefWidth="175.0" style="-fx-background-color: #ccc; -fx-border-style: solid; -fx-border-color: #333;">
                 <opaqueInsets>
                     <Insets />
                 </opaqueInsets>
@@ -52,7 +44,7 @@
                     <Cursor fx:constant="HAND" />
                 </cursor>
             </Button>
-            <Button layoutX="13.0" layoutY="167.0" mnemonicParsing="false" prefHeight="29.0" prefWidth="175.0" style="-fx-background-color: #fafafa; -fx-border-color: #ccc; -fx-border-radius: 5px;" text="Актуальное расписание">
+            <Button fx:id="showButton" layoutX="14.0" layoutY="239.0" mnemonicParsing="false" onAction="#showTimetable" prefHeight="58.0" prefWidth="175.0" style="-fx-background-color: #fafafa; -fx-border-color: #ccc; -fx-border-radius: 5px;" text="Актуальное расписание">
                 <font>
                     <Font name="Montserrat Regular" size="13.0" />
                 </font>
@@ -60,7 +52,7 @@
                     <Cursor fx:constant="HAND" />
                 </cursor>
             </Button>
-            <Button onAction="#options" layoutX="13.0" layoutY="237.0" mnemonicParsing="false" prefHeight="58.0" prefWidth="175.0" style="-fx-background-color: #fafafa; -fx-border-color: #ccc; -fx-border-radius: 5px;" text="Загрузка нач. параметров" textAlignment="JUSTIFY" textOverrun="CENTER_ELLIPSIS">
+            <Button layoutX="14.0" layoutY="308.0" mnemonicParsing="false" onAction="#options" prefHeight="58.0" prefWidth="175.0" style="-fx-background-color: #fafafa; -fx-border-color: #ccc; -fx-border-radius: 5px;" text="Загрузка нач. параметров" textAlignment="JUSTIFY" textOverrun="CENTER_ELLIPSIS">
                 <font>
                     <Font name="Montserrat Regular" size="13.0" />
                 </font>
@@ -68,27 +60,11 @@
                     <Cursor fx:constant="HAND" />
                 </cursor>
             </Button>
-            <Button layoutX="14.0" layoutY="307.0" mnemonicParsing="false" prefHeight="34.0" prefWidth="175.0" style="-fx-background-color: #fafafa; -fx-border-color: #ccc; -fx-border-radius: 5px;" text="Управление событиями">
-                <font>
-                    <Font name="Montserrat Regular" size="13.0" />
-                </font>
-                <cursor>
-                    <Cursor fx:constant="HAND" />
-                </cursor>
-            </Button>
-            <Separator focusTraversable="false" layoutX="14.0" layoutY="396.0" prefHeight="3.0" prefWidth="175.0" style="-fx-background-color: #fafafa; -fx-border-style: solid; -fx-border-color: #ccc; -fx-border-width: 0;">
+            <Separator focusTraversable="false" layoutX="14.0" layoutY="197.0" prefHeight="3.0" prefWidth="175.0" style="-fx-background-color: #fafafa; -fx-border-style: solid; -fx-border-color: #ccc; -fx-border-width: 0;">
                 <opaqueInsets>
                     <Insets />
                 </opaqueInsets>
             </Separator>
-            <Button layoutX="14.0" layoutY="409.0" mnemonicParsing="false" prefHeight="29.0" prefWidth="175.0" style="-fx-background-color: #f7746a; -fx-border-color: #f7746a; -fx-border-radius: 5px;" text="Закрыть программу" textFill="WHITE">
-                <font>
-                    <Font name="Montserrat Regular" size="13.0" />
-                </font>
-                <cursor>
-                    <Cursor fx:constant="HAND" />
-                </cursor>
-            </Button>
         </children>
     </AnchorPane>
     <AnchorPane fx:id="formOfSimulation" layoutX="200.0" layoutY="43.0" prefHeight="419.0" prefWidth="548.0">

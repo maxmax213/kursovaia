@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.kurs2.TrainInfo">
+
+    <TabPane layoutX="10.0" layoutY="10.0" prefHeight="500.0" prefWidth="651.0">
+        <tabs>
+            <!-- Вкладка для поиска поезда -->
+            <Tab text="Поиск поезда">
+                <AnchorPane>
+                    <Label layoutX="10.0" layoutY="10.0" text="ID Поезда:" />
+                    <TextField fx:id="trainIdField" layoutX="80.0" layoutY="10.0" prefWidth="150.0" />
+                    <Button layoutX="250.0" layoutY="10.0" onAction="#searchTrain" text="Найти" />
+
+                    <TableView fx:id="tableTrainDetails" layoutX="10.0" layoutY="50.0" prefHeight="329.0" prefWidth="636.0">
+                        <columns>
+                            <TableColumn fx:id="trainIdColumn" text="Номер поезда" />
+                            <TableColumn fx:id="trainStationColumn" prefWidth="131.0" text="Станция" />
+                            <TableColumn fx:id="trainArrivalColumn" prefWidth="159.0" text="Время прибытия" />
+                            <TableColumn fx:id="trainDepartureColumn" prefWidth="123.0" text="Время отправления" />
+                            <TableColumn fx:id="trainStatusColumn" prefWidth="165.0" text="Статус" />
+                        </columns>
+                    </TableView>
+               <RadioButton fx:id="swapPlan" layoutX="315.0" layoutY="14.0" mnemonicParsing="false" prefHeight="17.0" prefWidth="101.0" text="По плану" />
+               <RadioButton fx:id="swapEntries" layoutX="401.0" layoutY="14.0" mnemonicParsing="false" prefHeight="17.0" prefWidth="101.0" text="С событиями" />
+                    <Label fx:id="totalEventsLabel" layoutX="434.0" layoutY="415.0" text="Общее количество событий:" />
+                    <Label fx:id="totalDelayTimeLabel" layoutX="39.0" layoutY="415.0" prefHeight="17.0" prefWidth="203.0" text="Общее время задержек (мин):" />
+                    <Label fx:id="totalBreaksLabel" layoutX="269.0" layoutY="415.0" text="Количество поломок:" />
+                </AnchorPane>
+            </Tab>
+        </tabs>
+    </TabPane>
+    
+</AnchorPane>

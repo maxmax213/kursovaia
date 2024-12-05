@@ -3,6 +3,7 @@ package com.example.kurs2;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Parent;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
@@ -30,7 +31,7 @@ public class HelloController {
     @FXML public Label LabeltimeOfSimulation;
     private OptionsSimulation options;
 
-    private final List<Train> trains = new ArrayList<>();
+    private List<Train> trains = new ArrayList<>();
 
     private Route route;
 
@@ -50,10 +51,10 @@ public class HelloController {
 
     String startTime = "00:00";
     int step = 15;
-    int eventPercentage = 0;
-    int event1Chance = 25;
-    int event2Chance = 25;
-    int event3Chance = 25;
+    int eventPercentage = 100;
+    int event1Chance = 100;
+    int event2Chance = 0;
+    int event3Chance = 0;
     List<RowTimetable> rows = new ArrayList<>();
 
 
@@ -99,7 +100,12 @@ public class HelloController {
 
     private void setDefaultValues() {
 
-        rows.add(new RowTimetable("st1", "st7", 0));
+        rows.add(new RowTimetable("st1", "st7",  timeToMinutes(startTime)));
+    }
+
+    private int timeToMinutes(String time) {
+        String[] parts = time.split(":");
+        return Integer.parseInt(parts[0]) * 60 + Integer.parseInt(parts[1]);
     }
 
     private void addIntermediateStations() {
@@ -138,6 +144,15 @@ public class HelloController {
 
         modelling.setTimetable(timetable);
         modelling.setTimeStart(startTime); //Определние начала симуляции(HH:MM)
+
+
+        System.out.println("Полученные настройки:");
+        System.out.println("Время начала: " + startTime);
+        System.out.println("Процент событий: " + eventPercentage);
+        System.out.println("Шанс события 1: " + event1Chance);
+        System.out.println("Шанс события 2: " + event2Chance);
+        System.out.println("Шанс события 3: " + event3Chance);
+
         modelling.setEventChances(eventPercentage, event1Chance, event2Chance, event3Chance);
 
 
@@ -145,10 +160,8 @@ public class HelloController {
             timetable.addRouteWithTrain(row.getStartStation(), row.getEndStation(), row.getDepartureTime());
         }
 
-//        timetable.addRouteWithTrain("st12", "st7",0);
-//        //timetable.addRouteWithTrain("st1", "st12",0);
-//        //timetable.addRouteWithTrain("st9", "st1",60);
-//        //timetable.addRouteWithTrain("st10", "st7",100);
+
+        //timetable.addRouteWithTrain("st3", "st4",0);
 
 
 
@@ -161,8 +174,6 @@ public class HelloController {
 
     public void stopSimulation(ActionEvent actionEvent) {
 
-
-
         modelling.resetSimulation();
 
         start.setDisable(false);
@@ -171,14 +182,14 @@ public class HelloController {
 
     public void options(ActionEvent actionEvent) {
         try {
-            // Загрузка FXML файла для окна настроек
+
             FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("optionsSimulation.fxml"));
             Parent root = fxmlLoader.load();
 
             optionsSimulation = fxmlLoader.getController();
 
 
-            // Создание нового окна
+
             Stage stage = new Stage();
             stage.setTitle("Настройки симуляции");
             stage.initModality(Modality.APPLICATION_MODAL); // Блокирует основное окно, пока открыто окно настроек
@@ -220,6 +231,49 @@ public class HelloController {
 //            System.out.println(row);
 //        }
 
+    }
+
+    public void showTimetable(ActionEvent actionEvent) {
+        if(timetable == null){
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Ошибка");
+            alert.setHeaderText(null);
+            alert.setContentText("Симуляция еще не была запущена.");
+            alert.showAndWait();
+            return;
+        }
+
+        trains = new ArrayList<>(modelling.getTrains());
+
+        if (trains == null || trains.isEmpty() || timetable == null) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Ошибка");
+            alert.setHeaderText(null);
+            alert.setContentText("Список поездов пуст.");
+            alert.showAndWait();
+            return;
+        }
+
+        try {
+            FXMLLoader loader = new FXMLLoader(HelloApplication.class.getResource("trainInfo.fxml"));
+            Parent root = loader.load();
+
+            TrainInfo controller = loader.getController();
+
+            // Устанавливаем список поездов перед отображением окна
+            if (trains != null) {
+                controller.setTrains(trains);
+            } else {
+                System.out.println("Список поездов пуст (trains == null)");
+            }
+
+            Stage stage = new Stage();
+            stage.setTitle("Информация о поездах");
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 }

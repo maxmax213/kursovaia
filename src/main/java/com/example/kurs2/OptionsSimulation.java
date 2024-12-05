@@ -69,6 +69,8 @@ public class OptionsSimulation {
 
         scheduleTable.setEditable(true);
 
+        scheduleData.add(new ScheduleRecord("st1", "st7", "00:00"));
+
         simulationStepBox.setValue("15 минут");
     }
 

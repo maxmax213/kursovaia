@@ -15,7 +15,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.kurs2.OptionsSimulation">
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.kurs2.OptionsSimulation">
     <stylesheets>
         <URL value="@styles.css" />
     </stylesheets>
@@ -28,7 +28,7 @@
                     <VBox spacing="10" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
                         <HBox spacing="10">
                             <Label text="Время начала симуляции:" />
-                            <TextField fx:id="startTimeField" prefHeight="29.0" prefWidth="195.0" promptText="Введите время (например, 00:00)" />
+                            <TextField fx:id="startTimeField" prefHeight="29.0" prefWidth="195.0" text="00:00" promptText="Введите время (например, 00:00)" />
                         </HBox>
 
                         <Label text="Шаг симуляции:" />
@@ -71,16 +71,16 @@
                 <AnchorPane>
                     <VBox alignment="CENTER" spacing="10" AnchorPane.bottomAnchor="10" AnchorPane.leftAnchor="10" AnchorPane.rightAnchor="10" AnchorPane.topAnchor="10">
                         <Label alignment="TOP_LEFT" text="Процент поездов с событиями:" />
-                        <TextField fx:id="eventPercentageField" promptText="Введите процент (0-100)" />
+                        <TextField fx:id="eventPercentageField" text="50" promptText="Введите процент (0-100)" />
 
                         <Label text="Шанс события 1:" />
-                        <TextField fx:id="event1ChanceField" promptText="Введите шанс (%)" />
+                        <TextField fx:id="event1ChanceField" text="30" promptText="Введите шанс (%)" />
 
                         <Label text="Шанс события 2:" />
-                        <TextField fx:id="event2ChanceField" promptText="Введите шанс (%)" />
+                        <TextField fx:id="event2ChanceField" text="30" promptText="Введите шанс (%)" />
 
                         <Label text="Шанс события 3:" />
-                        <TextField fx:id="event3ChanceField" promptText="Введите шанс (%)" />
+                        <TextField fx:id="event3ChanceField" text="30" promptText="Введите шанс (%)" />
                     </VBox>
                 </AnchorPane>
             </Tab>

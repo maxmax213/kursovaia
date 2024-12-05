@@ -6,13 +6,11 @@ import javafx.animation.PathTransition;
 import javafx.animation.SequentialTransition;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
-import javafx.scene.shape.LineTo;
-import javafx.scene.shape.MoveTo;
-import javafx.scene.shape.Path;
+import javafx.scene.shape.*;
 import javafx.util.Duration;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -37,8 +35,19 @@ public class Train {
     boolean first = true;
     private boolean hasFinished = false;
     private int currentSimulationTime;
-    private final JourneyLog journeyLog = new JourneyLog();
     private final JourneyLog journey = new JourneyLog();
+    private final JourneyLog journeyNoEvent = new JourneyLog();
+
+
+    public List<JourneyLog.StationLogEntry> getJourneyLog() {
+        return journey.getEntries();
+    }
+
+    public List<JourneyLog.StationLogEntry> getJourneyLogWithNoEvent() {
+        return journeyNoEvent.getEntries();
+    }
+
+
 
     /**
      * Параметры поезда:
@@ -63,11 +72,11 @@ public class Train {
     private Accident accident;
     private final List<Delay> delays = new ArrayList<>();
     private List<Break> breaks = new ArrayList<>();
-
+    private final List<Line> pathLines = new ArrayList<>();
 
     public Train(int id, AnchorPane formOfSimulation, Map<String, Circle> stations, int startTime, int simulationStepMinutes) {
         this.id = id;
-        this.train = new Circle(3, Color.BLUE);
+        this.train = new Circle(3, Color.GREEN);
         this.transition = new SequentialTransition();
         this.formOfSimulation = formOfSimulation;
         this.stations = stations;
@@ -77,26 +86,82 @@ public class Train {
             this.speed = 1;
         } else this.speed = 0.5;
 
+
+        journey.setTrainId(id);
+        journeyNoEvent.setTrainId(id);
     }
 
 
     /**
-     * Расписание поезда учитывая все события
+     * Расписание поезда учитывая все события и без них
      * Для удобства будем считать что путь от одной станции к другой при нормальных условиях 60 минут а стоянка 15 минут
      */
+    public void generateJourneyLogWithoutEvent() {
 
-
-    public void generateJourneyLog() {
         List<String> stationIds = route.getStationList();
         int simulationTime = startTime;
 
-        // Обработка первой станции
+
+        Circle startStation = stations.get(stationIds.get(0));
+        String depTime = calculateSimulationTime(simulationTime);
+        journeyNoEvent.addEntry(stationIds.get(0), "N/A", "Normal");
+        journeyNoEvent.updateEntry(stationIds.get(0), depTime, "Normal");
+
+
+        for (int i = 1; i < stationIds.size() - 1; i++) {
+            String status = "Normal";
+            int timeOfPath = 0;
+            int timeOfStay = 0;
+
+            String currentStationId = stationIds.get(i);
+            String nextStationId = stationIds.get(i + 1);
+
+            Circle currentStation = stations.get(currentStationId);
+
+
+            timeOfPath += 60; // Стандартное время пути
+            timeOfStay = 15;
+
+
+            simulationTime += timeOfPath;
+
+            String arrivalTime = calculateSimulationTime(simulationTime);
+            journeyNoEvent.addEntry(currentStationId, arrivalTime, status);
+
+            simulationTime += timeOfStay;
+
+            String departureTime = calculateSimulationTime(simulationTime);
+            journeyNoEvent.updateEntry(currentStationId, departureTime, status);
+        }
+
+
+        String secondLastStationId = stationIds.get(stationIds.size() - 2);
+        String lastStationId = stationIds.get(stationIds.size() - 1);
+
+        Circle secondLastStation = stations.get(secondLastStationId);
+
+        String status = "Normal";
+        int timeOfPath = 60;
+
+        simulationTime += timeOfPath;
+        String arrivalTime = calculateSimulationTime(simulationTime);
+        journeyNoEvent.addEntry(lastStationId, arrivalTime, status);
+
+    }
+
+    public void generateJourneyLog() {
+
+
+        List<String> stationIds = route.getStationList();
+        int simulationTime = startTime;
+
+
         Circle startStation = stations.get(stationIds.get(0));
         String depTime = calculateSimulationTime(simulationTime);
         journey.addEntry(stationIds.get(0), "N/A", "Normal");
         journey.updateEntry(stationIds.get(0), depTime, "Normal");
 
-        // Обработка промежуточных станций
+
         for (int i = 1; i < stationIds.size() - 1; i++) {
             String status = "Normal";
             int timeOfPath = 0;
@@ -142,7 +207,7 @@ public class Train {
 
             if (delay != null) {
                 status = status.equals("Normal") ? "Delay" : status + "-Delay";
-                timeOfStay = 15 + delay.getDelayTime();
+                timeOfStay = 15+ delay.getDelayTime();
             } else {
                 timeOfStay = 15;
             }
@@ -201,13 +266,9 @@ public class Train {
         String arrivalTime = calculateSimulationTime(simulationTime);
         journey.addEntry(lastStationId, arrivalTime, status);
 
-
-        System.out.println("Generated Journey Log for Train " + id + ":");
-        for (JourneyLog.StationLogEntry entry : journey.getEntries()) {
-            System.out.println(entry);
-        }
-
     }
+
+
 
 
     /**
@@ -221,13 +282,11 @@ public class Train {
 
         List<String> stationIds = route.getStationList();
 
-
         transition.getChildren().clear();
 
         Circle startStation = stations.get(stationIds.getFirst());
         train.setTranslateX(startStation.getLayoutX());
         train.setTranslateY(startStation.getLayoutY());
-
 
         if (!formOfSimulation.getChildren().contains(train)) {
             formOfSimulation.getChildren().add(train);
@@ -240,11 +299,10 @@ public class Train {
             Circle currentStation = stations.get(currentStationId);
             Circle nextStation = stations.get(nextStationId);
 
-
-            // Занесение время прибытия в путевой лист
-            String arrivalTime = calculateSimulationTime(currentSimulationTime);
-            journeyLog.addEntry(currentStationId, arrivalTime, "Normal");
-
+            Delay delay = delays.stream()
+                    .filter(d -> d.getStationId().equals(currentStationId))
+                    .findFirst()
+                    .orElse(null);
 
             /**
              * Проблема возникает из-за того, что у промежуточных станций и основных станций используются разные координаты.
@@ -265,26 +323,15 @@ public class Train {
             pathTransition.setNode(train);
             pathTransition.setPath(path);
 
-            double travelDuration = (30 / 15.0) * speed;
-
-            Break speedLimitBreak = breaks.stream()
-                    .filter(b -> b.getDepartureStationId().equals(currentStationId) &&
-                            b.getArrivalStationId().equals(nextStationId))
-                    .findFirst()
-                    .orElse(null);
-
-            if (speedLimitBreak != null) {
-                System.out.println("Ограничение скорости между станциями " + currentStationId + " и " + nextStationId);
-
-                pathTransition.setDuration(Duration.seconds(travelDuration * 3));
-
-            } else {
-                pathTransition.setDuration(Duration.seconds(travelDuration));
-
-            }
 
 
-            // Проверка на наличие аварии
+            /**
+             * Определение событий
+             * Если simulationStepMinutes == 15 , то speed = 1 , иначе speed = 0.5
+             */
+
+            double travelDuration = 4 * speed;
+
             boolean hasAccident = accident != null
                     && accident.getDepartureStationId().equals(currentStationId)
                     && accident.getArrivalStationId().equals(nextStationId);
@@ -292,15 +339,13 @@ public class Train {
             if (hasAccident) {
                 Circle intermediateStation = findIntermediateStation(stationIds.get(i), stationIds.get(i + 1));
                 if (intermediateStation == null) {
-                    System.out.println("Intermediate station not found");
+                    System.out.println("Не найдена промежуточная станция");
                     return;
                 }
-
 
                 handleAccident(currentStation, nextStation, pathTransition, intermediateStation);
 
                 if (accident.getDelayTime() > 3) {
-                    flag = true;
                     System.out.println("Больше 4 часов");
                     break;
                 }
@@ -308,57 +353,67 @@ public class Train {
                 continue;
             }
 
-            // Проверка на наличие задержки
-            Delay delay = delays.stream()
-                    .filter(d -> d.getStationId().equals(currentStationId))
+            Break speedLimitBreak = breaks.stream()
+                    .filter(b -> b.getDepartureStationId().equals(currentStationId) &&
+                            b.getArrivalStationId().equals(nextStationId))
                     .findFirst()
                     .orElse(null);
 
-            if (delay != null) {
 
-                currentSimulationTime += delay.getDelayTime();
+            if (speedLimitBreak != null) {
+                System.out.println("Ограничение скорости между станциями " + currentStationId + " и " + nextStationId);
 
-                PauseTransition delayPause = new PauseTransition(Duration.seconds((double) delay.getDelayTime() / 15 * speed));
-                transition.getChildren().addAll(delayPause, pathTransition);
+                Line trackLine = new Line(currentX, currentY, nextX, nextY);
 
-                String departureTime = calculateSimulationTime(currentSimulationTime);
-                journeyLog.updateEntry(currentStationId, departureTime, "Delay");
-                currentSimulationTime += 15 * speed;
+                boolean lineExists = pathLines.stream().anyMatch(line ->
+                        line.getStartX() == trackLine.getStartX() &&
+                                line.getStartY() == trackLine.getStartY() &&
+                                line.getEndX() == trackLine.getEndX() &&
+                                line.getEndY() == trackLine.getEndY()
+                );
+
+
+
+                if (!lineExists) {
+                    pathLines.add(trackLine); // Добавляем линию в список
+                    formOfSimulation.getChildren().add(1, trackLine); // Отображаем линию
+                    trackLine.setStroke(Color.BLUE);
+                    trackLine.setStrokeWidth(4);
+                }
+
+                pathTransition.setDuration(Duration.seconds(travelDuration * 3));
 
             } else {
 
-                currentSimulationTime += 15;
+                pathTransition.setDuration(Duration.seconds(travelDuration));
+
+            }
+
+
+
+            if (delay != null) {
+                PauseTransition prePause = new PauseTransition(Duration.ZERO);
+                prePause.setOnFinished(event -> train.setFill(Color.YELLOW));
+
+                PauseTransition delayPause = new PauseTransition(Duration.seconds((double) delay.getDelayTime() / 15 * speed));
+                delayPause.setOnFinished(event -> train.setFill(Color.GREEN));
+
+
+
+                transition.getChildren().addAll(prePause,delayPause, pathTransition);
+
+            } else {
 
                 PauseTransition standardPause = new PauseTransition(Duration.seconds(speed)); // Стандартная пауза
+                standardPause.setOnFinished(event -> train.setFill(Color.GREEN));
+
                 transition.getChildren().addAll(pathTransition, standardPause);
-
-                String departureTime = calculateSimulationTime(currentSimulationTime);
-                journeyLog.updateEntry(currentStationId, departureTime, "Normal");
-
-
-                if (speedLimitBreak != null) {
-                    currentSimulationTime += 90 * 3; // Увеличение времени симуляции
-                } else {
-                    currentSimulationTime += 90; // Стандартное время
-                }
             }
-        }
-
-        if (!flag) {
-            String lastStationId = stationIds.getLast();
-            String arrivalTime = calculateSimulationTime(currentSimulationTime);
-            journeyLog.addEntry(lastStationId, arrivalTime, "Normal");
         }
 
         transition.setOnFinished(e -> {
             formOfSimulation.getChildren().remove(train);
             hasFinished = true;
-
-            // Вывод путевой карты в консоль
-            System.out.println("Train " + id + " Journey Log:");
-            for (JourneyLog.StationLogEntry entry : journeyLog.getEntries()) {
-                System.out.println(entry);
-            }
         });
     }
 
@@ -367,17 +422,29 @@ public class Train {
 
         PathTransition toIntermediate = new PathTransition();
         toIntermediate.setNode(train);
+
         toIntermediate.setPath(new Path(
                 new MoveTo(currentStation.getLayoutX(), currentStation.getLayoutY()),
                 new LineTo(intermediateStation.getCenterX(), intermediateStation.getCenterY())
         ));
+
         toIntermediate.setDuration(Duration.seconds(speed));
 
+        toIntermediate.setOnFinished(event -> {
+            train.setFill(Color.BLACK);
+        });
+
+
         PauseTransition delayPause = new PauseTransition(Duration.seconds(accident.getDelayTime() * 4));
+
+
+
         if (accident.getDelayTime() > 3) {
+
 
             PathTransition returnToCurrent = new PathTransition();
             returnToCurrent.setNode(train);
+
             returnToCurrent.setPath(new Path(
                     new MoveTo(intermediateStation.getCenterX(), intermediateStation.getCenterY()),
                     new LineTo(currentStation.getLayoutX(), currentStation.getLayoutY())
@@ -385,13 +452,17 @@ public class Train {
 
 
             returnToCurrent.setDuration(Duration.seconds(speed * 2));
-
             transition.getChildren().addAll(toIntermediate, delayPause, returnToCurrent);
-            journeyLog.updateEntry(currentStation.getId(), null, "Breakdown");
-            //accident.resolve();
+
+
 
             first = false;
+
         } else {
+
+            delayPause.setOnFinished(event -> {
+                train.setFill(Color.GREEN);
+            });
 
             PathTransition returnToPath = new PathTransition();
             returnToPath.setNode(train);
@@ -399,19 +470,12 @@ public class Train {
                     new MoveTo(intermediateStation.getCenterX(), intermediateStation.getCenterY()),
                     new LineTo(nextStation.getLayoutX(), nextStation.getLayoutY())
             ));
-            returnToPath.setDuration(Duration.seconds(speed / 2));
+            returnToPath.setDuration(Duration.seconds(speed));
 
-            currentSimulationTime += accident.getDelayTime() * 60;
             transition.getChildren().addAll(toIntermediate, delayPause, returnToPath);
 
-            String departureTime = calculateSimulationTime(currentSimulationTime);
-            journeyLog.updateEntry(currentStation.getId(), departureTime, "Breakdown");
-            currentSimulationTime += 15 * speed;
         }
     }
-
-
-
 
 
 
@@ -506,5 +570,27 @@ public class Train {
 
     public Circle getTrainNode() {
         return train;
+    }
+
+    public void setColor(){
+        train.setFill(Color.YELLOWGREEN);
+    }
+
+    public void clearAllLines() {
+        formOfSimulation.getChildren().removeAll(pathLines);
+        pathLines.clear();
+    }
+
+    public int getSummaryDelay(){
+        int sum = 0;
+        for(Delay delay : delays){
+            sum+=delay.getDelayTime();
+        }
+
+        return sum;
+    }
+
+    public int sizeOfBreak(){
+        return breaks.size();
     }
 }

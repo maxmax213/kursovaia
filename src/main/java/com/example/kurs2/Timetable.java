@@ -36,9 +36,8 @@ public class Timetable {
     public void addRouteWithTrain(String startStationId, String endStationId, int startTime) {
         Route newRoute = new Route(stations);
         List<String> listST = newRoute.buildDirectRoute(startStationId, endStationId);
-        System.out.println("buildDirectRoute result: " + listST);
         newRoute.setLiastST(listST);
-        System.out.println("Route after setLiastST: " + newRoute.getStationList());
+
         routes.add(newRoute);
 
         Train train = new Train(trains.size() + 1, formOfSimulation, stations, startTime, simulationStepMinutes);
@@ -49,17 +48,15 @@ public class Timetable {
     public void addRouteWithTrainPlusRT(String startStationId, String endStationId, String arrivalStation ,int startTime) {
         Route newRoute = new Route(stations);
         List<String> listST = newRoute.buildRouteWithIntermediate(startStationId, endStationId, arrivalStation);
-        System.out.println("buildDirectRoute result: " + listST);
         newRoute.setLiastST(listST);
-        System.out.println("Route after setLiastST: " + newRoute.getStationList());
+
         routes.add(newRoute);
 
         Train train = new Train(trains.size() + 1, formOfSimulation, stations, startTime, simulationStepMinutes);
+        train.setColor();
         train.setRoute(newRoute);
         trains.add(train);
 
-//        train.createPathWithStops();
-//        train.startSimulation();
     }
 
 
@@ -75,10 +72,7 @@ public class Timetable {
         return simulationStepMinutes;
     }
 
-    private int timeToMinutes(String time) {
-        String[] parts = time.split(":");
-        return Integer.parseInt(parts[0]) * 60 + Integer.parseInt(parts[1]);
-    }
+
 
     public String minutesToTime(int minutes) {
         int hours = minutes / 60;

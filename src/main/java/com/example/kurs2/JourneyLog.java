@@ -5,17 +5,24 @@ import java.util.List;
 
 public class JourneyLog {
 
+
+    private int TrainId;
+
     public static class StationLogEntry {
+
         private final String stationName;
         private final String arrivalTime;
         private String departureTime;
         private String status;
+        private final int trainId;
 
-        public StationLogEntry(String stationName, String arrivalTime, String status) {
+        public StationLogEntry(String stationName, String arrivalTime, String status, int trainId) {
             this.stationName = stationName;
             this.arrivalTime = arrivalTime;
             this.status = status;
+            this.trainId = trainId;
         }
+
 
         public String getStationName() {
             return stationName;
@@ -26,9 +33,8 @@ public class JourneyLog {
         }
 
         public String getDepartureTime() {
-            return departureTime;
+            return departureTime != null ? departureTime : "N/A";
         }
-
         public void setDepartureTime(String departureTime) {
             this.departureTime = departureTime;
         }
@@ -41,6 +47,10 @@ public class JourneyLog {
             this.status = status;
         }
 
+        public int getTrainId() {
+            return trainId;
+        }
+
         @Override
         public String toString() {
             return String.format("Station: %s, Arrival: %s, Departure: %s, Status: %s",
@@ -49,11 +59,17 @@ public class JourneyLog {
     }
 
 
+    public void setTrainId(int trainId) {
+        TrainId = trainId;
+    }
+
+
     private final List<StationLogEntry> logEntries = new ArrayList<>(); // Список записей путевой карты
 
-    // Добавление записи о посещение станции
+
     public void addEntry(String stationName, String arrivalTime, String status) {
-        logEntries.add(new StationLogEntry(stationName, arrivalTime, status));
+        System.out.println(TrainId);
+        logEntries.add(new StationLogEntry(stationName, arrivalTime, status, TrainId));
     }
 
     // Обновить запись о станции

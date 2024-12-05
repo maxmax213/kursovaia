@@ -40,7 +40,6 @@ public class Modelling {
     }
 
     public void setEvents() {
-        System.out.println("routs - " + routes.size());
         Event eventGenerator = new Event(routes, trains, eventPercentage, event1Chance, event2Chance, event3Chance);
         eventGenerator.generateEvents();
     }
@@ -75,8 +74,6 @@ public class Modelling {
         this.trains = new ArrayList<>(timetable.getTrains());
         this.routes = new ArrayList<>(timetable.getRoutes());
 
-
-        System.out.println("j");
     }
 
     public void setTimeStart(String timeStart) {
@@ -105,7 +102,7 @@ public class Modelling {
             LabletimeOfSimulation.setText(timetable.minutesToTime(currentTimeInMinutes));
 
             if (currentTimeInMinutes >= 1440) {
-                System.out.println("Simulation stopped: Time exceeded 24 hours.");
+                System.out.println("Симуляция остановлена прошло 24 часа");
                 stopSimulation();
                 return;
             }
@@ -139,7 +136,7 @@ public class Modelling {
                 System.out.println("Создается новый поезд из-за длительной аварии между " + startStation + " и " + endStation);
                 timetable.addRouteWithTrainPlusRT(startStation, lastStation, endStation, startTime);
                 updateTrains();
-                // Отмечаем аварию как разрешенную
+
                 accident.resolve();
             }
         }
@@ -151,7 +148,7 @@ public class Modelling {
             Route route = train.getRoute();
             if (route == null) continue;
 
-            // Проверяем наличие аварии
+
             Accident accident = train.getAccident();
             if (accident != null && !train.hasFinished()) {
                 //System.out.println("Accident detected on route for train " + train.getId());
@@ -173,6 +170,8 @@ public class Modelling {
 
         for(Train train : trains) {
             train.generateJourneyLog();
+            train.generateJourneyLogWithoutEvent();
+            train.clearAllLines();
         }
 
         simulationExecutor.shutdownNow();
@@ -183,5 +182,14 @@ public class Modelling {
         routes.clear();
         currentTimeInMinutes = 0;
         Platform.runLater(() -> LabletimeOfSimulation.setText("00:00"));
+    }
+
+    public void show(){
+
+    }
+
+    public List<Train> getTrains() {
+        updateTrains();
+        return trains;
     }
 }
